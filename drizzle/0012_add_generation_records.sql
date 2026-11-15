@@ -1,0 +1,22 @@
+CREATE TABLE `generation_records` (
+	`id` text PRIMARY KEY NOT NULL,
+	`project_id` text NOT NULL,
+	`node_id` text NOT NULL,
+	`result_node_id` text,
+	`node_seq` integer,
+	`node_title` text DEFAULT '' NOT NULL,
+	`node_type` text NOT NULL,
+	`gen_kind` text,
+	`prompt` text DEFAULT '' NOT NULL,
+	`gen_ratio` text,
+	`gen_size` text,
+	`gen_duration` integer,
+	`media_blob_key` text,
+	`mime_type` text,
+	`file_path` text,
+	`status` text NOT NULL,
+	`error` text,
+	`started_at` integer NOT NULL,
+	`finished_at` integer NOT NULL,
+	`created_at` integer NOT NULL
+);

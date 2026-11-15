@@ -1,0 +1,97 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1794664203102,
+      "tag": "0001_initial",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1794664203102,
+      "tag": "0002_canvas_core_tables",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1794664203102,
+      "tag": "0003_add_canvas_edges",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1794664203102,
+      "tag": "0004_generation_core_fields",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1794664203102,
+      "tag": "0005_add_project_chat_binding",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1794664203102,
+      "tag": "0006_add_node_free_resize_and_font_size",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1794664203102,
+      "tag": "0007_add_plugins_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1794665449702,
+      "tag": "0008_add_asset_media_fields",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1794685138853,
+      "tag": "0009_scope_assets_to_project",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1794687363532,
+      "tag": "0010_add_node_seq_numbering",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1794734898177,
+      "tag": "0011_add_node_playback_proxy",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1794739396795,
+      "tag": "0012_add_generation_records",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1794740205569,
+      "tag": "0013_drop_plugins_table_and_retire_doc_node_types",
+      "breakpoints": true
+    }
+  ]
+}
