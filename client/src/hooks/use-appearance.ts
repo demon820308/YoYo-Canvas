@@ -13,7 +13,7 @@ import type {
 export function useAppearance() {
 const [backgroundMode, setBackgroundMode] = useState<BackgroundMode>(() => {
   try {
-    const saved = localStorage.getItem("yoyohua-bu-bg-mode");
+    const saved = localStorage.getItem("yoyo-canvas-bg-mode");
     return saved === "lines" || saved === "blank" ? saved : "dots";
   } catch {
     return "dots";
@@ -22,7 +22,7 @@ const [backgroundMode, setBackgroundMode] = useState<BackgroundMode>(() => {
 const [themeMode, setThemeMode] = useState<ThemeMode>(
   () => {
     try {
-      const saved = localStorage.getItem("yoyohua-bu-theme-mode");
+      const saved = localStorage.getItem("yoyo-canvas-theme-mode");
       return saved === "light" || saved === "dark" ? saved : "system";
     } catch {
       return "system";
@@ -31,7 +31,7 @@ const [themeMode, setThemeMode] = useState<ThemeMode>(
 );
 const [showMediaInfo, setShowMediaInfo] = useState<boolean>(() => {
   try {
-    return localStorage.getItem("yoyohua-bu-media-info") !== "off";
+    return localStorage.getItem("yoyo-canvas-media-info") !== "off";
   } catch {
     return true;
   }
@@ -42,7 +42,7 @@ const [showMediaInfo, setShowMediaInfo] = useState<boolean>(() => {
 // "system" leaving the attribute off so prefers-color-scheme rules.
 useEffect(() => {
   try {
-    localStorage.setItem("yoyohua-bu-theme-mode", themeMode);
+    localStorage.setItem("yoyo-canvas-theme-mode", themeMode);
   } catch {
     // preference persistence is best-effort
   }
@@ -54,14 +54,14 @@ useEffect(() => {
 }, [themeMode]);
 useEffect(() => {
   try {
-    localStorage.setItem("yoyohua-bu-bg-mode", backgroundMode);
+    localStorage.setItem("yoyo-canvas-bg-mode", backgroundMode);
   } catch {
     // best-effort
   }
 }, [backgroundMode]);
 useEffect(() => {
   try {
-    localStorage.setItem("yoyohua-bu-media-info", showMediaInfo ? "on" : "off");
+    localStorage.setItem("yoyo-canvas-media-info", showMediaInfo ? "on" : "off");
   } catch {
     // best-effort
   }

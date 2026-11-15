@@ -64,7 +64,7 @@ export function SidePanel(props: SidePanelProps) {
       props.onWidthChange(nextWidth);
     };
     const onUp = () => {
-      localStorage.setItem("yoyohua-bu-panel-width", String(nextWidth));
+      localStorage.setItem("yoyo-canvas-panel-width", String(nextWidth));
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
       setResizing(false);

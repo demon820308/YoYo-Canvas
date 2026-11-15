@@ -206,7 +206,7 @@ export function App() {
   );
   const [panelWidth, setPanelWidth] = useState<number>(() => {
     try {
-      const saved = Number(localStorage.getItem("yoyohua-bu-panel-width"));
+      const saved = Number(localStorage.getItem("yoyo-canvas-panel-width"));
       return saved >= 240 && saved <= 520 ? saved : 300;
     } catch {
       return 300;

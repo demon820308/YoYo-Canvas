@@ -24,7 +24,7 @@ export type QuickToolId =
   | "download"
   | ImageToolId;
 
-export const IMAGE_QUICK_TOOLS_STORAGE_KEY = "yoyohua-bu-image-quick-tools-v1";
+export const IMAGE_QUICK_TOOLS_STORAGE_KEY = "yoyo-canvas-image-quick-tools-v1";
 
 const BASE_TOOL_IDS: QuickToolId[] = ["info", "delete", "saveAsset", "download"];
 

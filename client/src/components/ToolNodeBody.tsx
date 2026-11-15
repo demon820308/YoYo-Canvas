@@ -59,7 +59,7 @@ const DEFAULT_OPTIONS: ToolOptionsState = {
   helpDismissed: false,
 };
 
-const optionsKey = (nodeId: string) => `yoyohua-bu-tool-options-v1:${nodeId}`;
+const optionsKey = (nodeId: string) => `yoyo-canvas-tool-options-v1:${nodeId}`;
 
 export function readToolOptions(nodeId: string): ToolOptionsState {
   try {
