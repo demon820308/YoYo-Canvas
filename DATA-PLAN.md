@@ -460,3 +460,19 @@ None inside the artifact build. Generation at runtime uses the source package's 
 - **改动（服务端）**：删 `server/src/actions/plugins.ts` 与 `plugins-manifest.ts` 两文件，`actions.ts` 注册表去掉 PluginsActions；`contracts.ts` nodeType 枚举删四值（saveGraph/addNode/资产 kind/生成记录/项目包导入全部经此一处校验，删后四种类型在任何入口都建不出来、存不进去）；`generation-context.ts` 文本来源收敛为 text/config/sticky-note；`schema.ts` 删 plugins 表定义与三处枚举四值。
 - **验收**：typecheck 双侧全绿；特征测试 60 条全绿（测试文件零修改）；构建与沙箱探针（便签双入口新建、存量项目打开、工具节点回归）见构建报告。
 - **恢复路径**：动手前备份 ~/workspace/backups/yoyo-canvas-pre-doc-node-removal-2026-11-15.zip（sha256 5a581827ef434510bf999a96f9db46e3b0bcd8f1b045414c1d98cd4c571516e6，含 client/server/drizzle/package.json/space.json）；回退 = 以该包覆回源码后重新构建，plugins 表由旧迁移 0007 在空表时重建、listPlugins 旧逻辑会重新播种官方行（回退仅恢复代码与空表结构，被删的第三方登记记录不可恢复——其本就只是登记记录、无节点数据）。
+
+## Edit 2026-11-16（视频节点去掉浏览器原生控制条，Wei 16:53 裁决）
+- **背景（Wei 裁决）**：视频节点原生控制条中间的全屏按钮点不了——首次播放前元素无 src（V2 点播设计）时按钮为灰，且 app 播放环境限制 Fullscreen API；原生按钮无法单独删除或修复。Wei 先要求「功能与右上角一致」，经说明后最终裁决：直接删掉。原生控制条不能只删一个按钮，唯一合规实现是整条去掉。
+- **涉及条款**：开工速查第 1 条（不打补丁、新旧逻辑不并存：连带失效的点击豁免一并清理）、第 4 条（落点先定：仅 NodeCard 视频节点媒体面一处）、第 11 条（交付门）、第 12 条（证据分级）。
+- **改动（仅 `client/src/components/NodeCard.tsx`）**：①`<video>` 元素移除 `controls` 属性——原生控制条整体消失（含点不了的全屏按钮、音量喇叭与 ⋮ 菜单）。②视频面 onPointerUp 删除「底部 44px 属于原生控制条」的点击豁免（`e.clientY > rect.bottom - 44 && localVideoSrc` 时 return），整面点击统一走点播/暂停切换；拖动阈值（触摸 12px / 鼠标 6px）与长按抑制逻辑不变。③文件内两处关于 native controls strip 的注释同步改写为新行为口径。
+- **保持不变**：V2 点播下载后播放流程（无 src 海报 → 点击下载 → 本地 blob 播放）、暂停遮罩与中央播放按钮、加载中徽章、右上角 NodeZoomButton（打开 MediaPreviewDialog，弹窗内全屏/缩放/下载俱全）、videoPaused 状态联动。进度拖动与音量调节自此只在预览弹窗内（用户裁决的预期结果，不加自有控制条）。MediaPreviewDialog、音频节点原生 controls、图片节点均未动。
+- **验收**：typecheck 双侧全绿、特征测试 60 条全绿、构建与沙箱探针（video 元素无 controls 属性、点画面触发点播与播放/暂停、右上角放大按钮仍开预览弹窗）见构建报告；iPad app 真机未验，待 Wei 真机确认。
+
+## Edit 2026-11-16（整体移除项目↔专属聊天绑定与生成后自动投递，Wei 21:04 定版「两步一起拆干净」）
+- **决策背景（Wei 定版）**：绑定聊天功能靠外部哨兵/cron 持续巡检、太费额度，且生成后自动投递到绑定聊天不再需要——画布本体与外部链两步一起拆干净。本决策推翻 2026-11-14 定版红线「项目绑定聊天后不可解绑」与「会话删除自愈」口径。外部链（hook yoyo-chat-sentinel、yoyo-delivery-sentinel、cron yoyo-chat-fallback、投递防重文件 .delivered.json）已由主会话先行拆除并移入备份，本单只处理画布本体与本仓规范文档，未重建或引用任何外部哨兵/cron。
+- **涉及条款**：开工速查第 1 条（整域删除、新旧逻辑不并存）、第 8/17 条（数据动结构走迁移 0014 + 三态验证）、第 11/24 条（交付门四项）、第 12/23 条（证据分级）；ENGINEERING 同步修订：红线删「项目绑定聊天后不可解绑」句、第一部分分层表「外部投递链」行改为仅剩生成队列处理与总监控采集、职责边界地图「项目与绑定」改「项目」、第十节状态机登记删「项目聊天绑定」条、第十三节删绑定会话存亡核对落地段落、第十六/十八/二十七节与第三十二节删投递链残留口径（投递去重标记、delivery_key、投递关键路径、投递键格式保留项）。
+- **移除清单（服务端）**：①`server/src/schema.ts` 删 projects 表 chat_status/chat_id/chat_title/chat_error/chat_requested_at 五列与四态机注释块；②新迁移 `0014_drop_project_chat_binding_columns`（五条 DROP COLUMN，可重复执行无二次伤害的口径同 0013）；③`contracts.ts` 删 chatStatusEnum/chatFields/toChatFields；④`projects.ts` 整域删 requestProjectChat/bindProjectChat/failProjectChat/clearProjectChat 四个 action，createProject 不再出生 creating、listProjects/getProject 返回去掉全部 chat 字段；⑤`package.ts` 导入项目不再写 chat 字段（导出包格式本就不含 chat 信息，无需改）；⑥`queue-sweep.ts` 删 recoverStaleChats 与 STALE_CHAT 常量，`generation.ts` processQueue 删其调用与 chatRecovered 输出字段。生成主逻辑（分流口径、每轮最多认领 3 个、孤儿恢复、海报/代理回填、镜像、框校正、媒体指针修复）一律未动。
+- **移除清单（客户端）**：`ProjectChrome.tsx` 删 ChatStatusBadge 组件（ProjectMenuItem 保留）；`App.tsx` 删徽标用法、requestProjectChat mutation 与顶栏注释中的 chat 字样，项目列表 5 秒轻轮询保留（注释改为外部变更可见口径）；`use-generation.ts` 队列完成 toast 删「回收建聊超时」段。顶栏左簇其余元素位置、顺序、行为不变。Project 的 chat 字段经 listProjects 响应类型派生，随服务端契约自动消失，无手写类型可删。
+- **三态验证（第十七节）**：特征测试以内存 libsql 跑真实迁移——仅旧（0013 库 + bound 项目行 → 执行 0014 → 行完好、五列消失）、仅新（全量迁移库无五列、项目可插入）、并存即旧数据行在新结构下完好读取；另断言 createProject/listProjects/getProject 返回无 chat 字段、四个建聊 action 不存在、processQueue 输出无 chatRecovered。新增测试文件 `server/src/actions/__tests__/project-chat-removal.test.ts`（6 条），全仓 66 条全绿（原 60 条零修改）。
+- **生产数据对账口径**：迁移前后以 listProjects/getProject/listAssets/listGenerationRecords 对 yoyo-01、yoyo-02 逐项计数（节点/边/资产/生成记录），数字记入交付报告；预期仅 chat 五列消失、计数全等。
+- **恢复路径**：本批为整域删除，回退 = 以本批前源码重新构建并回滚迁移 0014（五列以 0005 原定义重加，数据不可恢复——两生产项目原均为 bound、chat_id/chat_title 值已随主会话拆除外部链时留档于记忆与备份，属 Wei 明示不要的数据）。

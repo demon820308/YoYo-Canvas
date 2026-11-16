@@ -408,7 +408,7 @@ const processQueueMut = useMutation({
   mutationFn: () => api.processQueue({}),
   onSuccess: (res) => {
     showToast(
-      `队列处理完成：推进 ${res.processed} 个，回收孤儿 ${res.recovered} 个，服务端落盘 ${res.mirrored} 个，待落盘 ${res.pendingMirrors} 个，剩余排队 ${res.remaining} 个${res.framesRepaired > 0 ? `，校正落框 ${res.framesRepaired} 个` : ""}${res.chatRecovered > 0 ? `，回收建聊超时 ${res.chatRecovered} 个` : ""}`,
+      `队列处理完成：推进 ${res.processed} 个，回收孤儿 ${res.recovered} 个，服务端落盘 ${res.mirrored} 个，待落盘 ${res.pendingMirrors} 个，剩余排队 ${res.remaining} 个${res.framesRepaired > 0 ? `，校正落框 ${res.framesRepaired} 个` : ""}`,
     );
     queryClient.invalidateQueries({ queryKey: ["generation-requests"] });
     void refreshGraphFromServer();

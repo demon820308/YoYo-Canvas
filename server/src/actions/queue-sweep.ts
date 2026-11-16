@@ -1,6 +1,6 @@
 // queue-sweep.ts — 队列扫尾与自愈：媒体镜像落盘（mirrorNodeMedia /
 // mirrorPendingMedia）、孤儿 working 回收（recoverStaleWorking）、
-// 建聊超时回收（recoverStaleChats）、视频海报回填（ensurePoster /
+// 视频海报回填（ensurePoster /
 // backfillPosters）、视频播放代理回填（ensureProxy / backfillProxies，
 // V1 新增）。批次 S2 自 generation-dispatch.ts 整段搬移，行为不变。
 
@@ -353,39 +353,6 @@ export async function recoverStaleWorking(db: Db): Promise<number> {
     const startedAt = row.genStartedAt ?? row.updatedAt;
     if (now - startedAt.getTime() > STALE_WORKING_MS) {
       await markFailed(db, row.id, STALE_WORKING_MESSAGE);
-      recovered += 1;
-    }
-  }
-  return recovered;
-}
-
-const STALE_CHAT_MS = 10 * 60 * 1000;
-const STALE_CHAT_MESSAGE = "建聊请求超时未被接手";
-
-/** Fails chat-binding requests nobody picked up: a project sitting in
- * chatStatus=creating for over 10 minutes means the external sentinel
- * never handed the request to a live session. It becomes a retryable
- * failure and chatRequestedAt is cleared, so a later requestProjectChat
- * is never blocked by the stale marker. Returns how many were swept. */
-export async function recoverStaleChats(db: Db): Promise<number> {
-  const rows = await db
-    .select()
-    .from(schema.projects)
-    .where(eq(schema.projects.chatStatus, "creating"));
-  const now = Date.now();
-  let recovered = 0;
-  for (const row of rows) {
-    if (!row.chatRequestedAt) continue;
-    if (now - row.chatRequestedAt.getTime() > STALE_CHAT_MS) {
-      await db
-        .update(schema.projects)
-        .set({
-          chatStatus: "failed",
-          chatError: STALE_CHAT_MESSAGE,
-          chatRequestedAt: null,
-          updatedAt: new Date(),
-        })
-        .where(eq(schema.projects.id, row.id));
       recovered += 1;
     }
   }

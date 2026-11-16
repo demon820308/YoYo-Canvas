@@ -157,9 +157,12 @@ export function NodeCard({
   );
   // Click-without-drag on the video picture toggles play/pause. The
   // press position is remembered on pointerdown; a release that moved
-  // more than a few px was a drag (of the node or a seek attempt) and
-  // must not toggle. Clicks landing on the native controls strip at
-  // the bottom are left to the controls themselves.
+  // more than a few px was a drag (of the node) and must not toggle.
+  // The element carries NO native controls (Wei 2026-11-16: the
+  // native bar's fullscreen button is unusable in the app's playback
+  // environment, so the whole bar goes) — the whole surface is one
+  // play/pause tap target, and seek / volume / fullscreen live in
+  // the MediaPreviewDialog opened by the zoom button.
   const isGroup = node.type === "group";
   const mediaSrc =
     node.mediaUrl ?? (isMediaUrl(node.content) ? node.content : null);
@@ -345,12 +348,10 @@ export function NodeCard({
                   tapRadius
                 )
                   return;
-                const rect = e.currentTarget.getBoundingClientRect();
-                // The bottom strip belongs to the native controls —
-                // except before the first download, when the element
-                // has no src and its play button can do nothing: a
-                // tap there is a play tap like any other.
-                if (e.clientY > rect.bottom - 44 && localVideoSrc) return;
+                // No native controls strip exists anymore, so every
+                // in-radius release on the surface toggles play/pause
+                // — including the bottom strip, before and after the
+                // first download alike.
                 toggleVideo();
               }}
               onPointerCancel={() => {
@@ -361,7 +362,6 @@ export function NodeCard({
                 ref={videoRef}
                 src={localVideoSrc ?? undefined}
                 poster={node.posterUrl ?? undefined}
-                controls
                 preload="metadata"
                 className="h-full w-full"
                 aria-label={`视频 ${node.title}（点画面播放/暂停）`}

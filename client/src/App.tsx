@@ -70,7 +70,7 @@ type HoverPreviewData,
 } from "./components/HoverMediaPreview";
 import { downloadMediaFile } from "./components/download-media";
 import logoUrl from "./assets/logo.png";
-import { ChatStatusBadge, ProjectMenuItem } from "./components/ProjectChrome";
+import { ProjectMenuItem } from "./components/ProjectChrome";
 import { EdgePath } from "./components/EdgePath";
 import { NodeCard } from "./components/NodeCard";
 import {
@@ -308,8 +308,8 @@ export function App() {
   const projectsQ = useQuery({
     queryKey: ["projects"],
     queryFn: () => api.listProjects({}),
-    // Light poll so a project's chat binding (creating -> bound, filled
-    // in by an external session) becomes visible without a manual
+    // Light poll so changes made outside this page (e.g. generation
+    // results landing server-side) become visible without a manual
     // refresh. The list payload is small; the graph itself is untouched.
     refetchInterval: 5000,
   });
@@ -658,15 +658,6 @@ export function App() {
       if (id === projectId) switchProject(null);
       showToast("项目已删除");
     },
-  });
-  const requestChat = useMutation({
-    mutationFn: (id: string) => api.requestProjectChat({ projectId: id }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
-      queryClient.invalidateQueries({ queryKey: ["project", projectId] });
-      showToast("已发出建聊请求，专属窗口创建中");
-    },
-    onError: () => showToast("建聊请求失败，请稍后重试"),
   });
   // ------------------------------------------------- project package I/O
   // (hooks/use-package-io.ts: export download, import + report)
@@ -1513,8 +1504,7 @@ export function App() {
           canvas-top-bar pattern, per the user's call: NO bar of its
           own — the canvas fills the whole screen and the controls
           float over it in two transparent clusters, left: panel
-          toggle, logo, project menu button, project switcher, chat
-          status; right: the queue icon. Fully transparent, no capsule
+          toggle, logo, project menu button, project switcher; right: the queue icon. Fully transparent, no capsule
           background: nodes sliding under the cluster overlap it,
           exactly like the upstream original. The header itself is
           pointer-events-none so the canvas stays draggable through
@@ -1688,15 +1678,6 @@ export function App() {
             </div>
           ) : null}
         </div>
-        {currentProject ? (
-          <span className="pointer-events-auto flex min-w-0">
-            <ChatStatusBadge
-              project={currentProject}
-              requesting={requestChat.isPending}
-              onRequest={() => requestChat.mutate(currentProject.id)}
-            />
-          </span>
-        ) : null}
         </div>
         <span className="flex-1" />
         <button

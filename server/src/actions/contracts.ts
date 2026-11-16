@@ -1,6 +1,6 @@
 // contracts.ts — YoYo画布服务端契约层：zod 请求/响应 schema、行类型
 // （Db / NodeRow / ProjectRow / EdgeRow）与行→线型的转换（toNode /
-// toEdge / toChatFields / parseTags）。只放契约与纯转换，不放业务逻辑。
+// toEdge / parseTags）。只放契约与纯转换，不放业务逻辑。
 // 拆分来源：批次 S1 自 server/src/actions.ts 整段搬移，行为不变。
 
 import { z, type Ctx, type SpaceDb } from "@hatch/space-sdk";
@@ -34,26 +34,6 @@ export const TOOL_TYPES = new Set<string>([
 
 export const nodeStatus = z.enum(["idle", "loading", "success", "error"]);
 export const genStatusEnum = z.enum(["idle", "queued", "working", "done", "failed"]);
-export const chatStatusEnum = z.enum(["unbound", "creating", "bound", "failed"]);
-
-// The five chat-binding fields every project surface returns.
-export const chatFields = {
-  chatStatus: chatStatusEnum,
-  chatId: z.string().nullable(),
-  chatTitle: z.string().nullable(),
-  chatError: z.string().nullable(),
-  chatRequestedAt: z.string().nullable(),
-};
-
-export function toChatFields(p: ProjectRow) {
-  return {
-    chatStatus: p.chatStatus,
-    chatId: p.chatId,
-    chatTitle: p.chatTitle,
-    chatError: p.chatError,
-    chatRequestedAt: p.chatRequestedAt ? p.chatRequestedAt.toISOString() : null,
-  };
-}
 export const genKindEnum = z.enum(["image", "video", "audio", "text", "tool"]);
 export const genModeEnum = z.enum(["image", "text", "video", "audio"]);
 

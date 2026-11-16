@@ -171,7 +171,7 @@ export const PackageActions = {
 
   importProjectPackage: defineAction({
     description:
-      "Imports a YoYo画布 project package (ZIP, base64) as a BRAND-NEW project — existing projects are never touched. Media bytes are written into the new project's own directory, nodes are re-pointed at the new files with genSize re-measured from them, and the graph (nodes/edges/groups/viewport) is fully restored with fresh ids. Chat binding is NOT carried over: the new project is born chatStatus=creating like any new project. Media files that are missing, corrupt, or byte-mismatched in the package are reported per node and land as a visible failed state on that node instead of a silent empty node.",
+      "Imports a YoYo画布 project package (ZIP, base64) as a BRAND-NEW project — existing projects are never touched. Media bytes are written into the new project's own directory, nodes are re-pointed at the new files with genSize re-measured from them, and the graph (nodes/edges/groups/viewport) is fully restored with fresh ids. Media files that are missing, corrupt, or byte-mismatched in the package are reported per node and land as a visible failed state on that node instead of a silent empty node.",
     request: z.object({
       fileName: z.string().max(300).default(""),
       dataBase64: z.string().min(4).max(100_000_000),
@@ -264,7 +264,6 @@ export const PackageActions = {
         const ensured = await ctx.executePrivileged(Contracts.ensureProjectDir, {
           dirName,
         });
-        const requestedAt = new Date();
         const viewport = manifest.project?.viewport;
         await db.insert(schema.projects).values({
           id: projectId,
@@ -273,11 +272,6 @@ export const PackageActions = {
           viewportX: viewport?.x ?? 0,
           viewportY: viewport?.y ?? 0,
           viewportZoom: viewport?.zoom ?? 1,
-          chatStatus: "creating",
-          chatId: null,
-          chatTitle: null,
-          chatError: null,
-          chatRequestedAt: requestedAt,
         });
         const declaredByEntry = new Map(
           (manifest.files ?? []).map((f) => [f.entry, f]),

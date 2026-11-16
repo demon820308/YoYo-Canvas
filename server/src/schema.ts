@@ -14,22 +14,6 @@ export const projects = sqliteTable("projects", {
   viewportX: real("viewport_x").notNull().default(0),
   viewportY: real("viewport_y").notNull().default(0),
   viewportZoom: real("viewport_zoom").notNull().default(1),
-  // ---- project chat binding (four-state machine, ported from the old
-  // canvas's proven semantics; the chat window itself is created by an
-  // external sentinel watching the project directory, never in-page) ----
-  // unbound: no chat requested. creating: a request is outstanding —
-  // chatRequestedAt is its clock; processQueue fails requests older
-  // than 10 minutes so they become retryable. bound: chatId/chatTitle
-  // filled by bindProjectChat. failed: chatError holds the reason.
-  chatStatus: text("chat_status", {
-    enum: ["unbound", "creating", "bound", "failed"],
-  })
-    .notNull()
-    .default("unbound"),
-  chatId: text("chat_id"),
-  chatTitle: text("chat_title"),
-  chatError: text("chat_error"),
-  chatRequestedAt: integer("chat_requested_at", { mode: "timestamp_ms" }),
   // Per-project node numbering counter: the highest sequence number
   // ever issued in this project. Only ever increases — a deleted
   // node's number is never reissued (see canvas_nodes.seq).

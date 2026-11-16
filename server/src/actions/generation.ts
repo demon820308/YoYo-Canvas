@@ -69,7 +69,7 @@ import { recordGenerationOutcome } from "./generation-records";
 import { expandHome, isInProjectDir } from "./project-dirs";
 import { clampVideoSeconds } from "./ratios";
 import { dispatchImageGeneration, dispatchVideoGeneration, dispatchAudioGeneration, dispatchConfigGeneration, dispatchGeneration, queueKindFor } from "./generation-dispatch";
-import { ensurePoster, backfillPosters, ensureProxy, backfillProxies, mirrorPendingMedia, repairMeasuredFrames, repairOrphanedMediaPointers, recoverStaleWorking, recoverStaleChats } from "./queue-sweep";
+import { ensurePoster, backfillPosters, ensureProxy, backfillProxies, mirrorPendingMedia, repairMeasuredFrames, repairOrphanedMediaPointers, recoverStaleWorking } from "./queue-sweep";
 import { runToolDispatch } from "./tool-dispatch";
 
 export const GenerationActions = {
@@ -297,7 +297,7 @@ export const GenerationActions = {
 
   processQueue: defineAction({
     description:
-      "The generation-queue consumer: recovers orphaned 'working' nodes — generation AND tool nodes alike (no live background task, started over 10 minutes ago) — into retryable failures, backfills poster frames for older video nodes, backfills playback proxies (lightweight H.264 MP4 twins for smooth in-app playback) for older video nodes, mirrors media blobs into their project directories server-side (up to five per run; reports mirrored and still-pending counts), repairs generation-landed nodes whose frame no longer fits their measured genSize (a stale full-graph save can stamp a pre-landing placeholder frame back over the server's measured one; up to five per run, reported as framesRepaired; freeResize and aspect-preserving user resizes are never touched), repairs media nodes whose server-owned pointers were lost to the whole-graph save race (mediaBlobKey null while the asset library still holds the record filed for that node; restored from that record, up to five per run, reported as mediaRepaired), then claims up to three queued nodes (optionally within one project) with an optimistic claim token and dispatches their generation. It also sweeps stale chat-binding requests: projects in chatStatus=creating for over 10 minutes become failed with 「建聊请求超时未被接手」 and their request timestamp cleared (reported as chatRecovered).",
+      "The generation-queue consumer: recovers orphaned 'working' nodes — generation AND tool nodes alike (no live background task, started over 10 minutes ago) — into retryable failures, backfills poster frames for older video nodes, backfills playback proxies (lightweight H.264 MP4 twins for smooth in-app playback) for older video nodes, mirrors media blobs into their project directories server-side (up to five per run; reports mirrored and still-pending counts), repairs generation-landed nodes whose frame no longer fits their measured genSize (a stale full-graph save can stamp a pre-landing placeholder frame back over the server's measured one; up to five per run, reported as framesRepaired; freeResize and aspect-preserving user resizes are never touched), repairs media nodes whose server-owned pointers were lost to the whole-graph save race (mediaBlobKey null while the asset library still holds the record filed for that node; restored from that record, up to five per run, reported as mediaRepaired), then claims up to three queued nodes (optionally within one project) with an optimistic claim token and dispatches their generation.",
     request: z.object({ projectId: z.string().optional() }),
     response: z.object({
       processed: z.number(),
@@ -309,7 +309,6 @@ export const GenerationActions = {
       pendingMirrors: z.number(),
       framesRepaired: z.number(),
       mediaRepaired: z.number(),
-      chatRecovered: z.number(),
     }),
     privileged: [
       Contracts.makePoster,
@@ -321,7 +320,6 @@ export const GenerationActions = {
     async handler(ctx, args) {
       const db = ctx.db<typeof schema>();
       const recovered = await recoverStaleWorking(db);
-      const chatRecovered = await recoverStaleChats(db);
       const postersBackfilled = await backfillPosters(ctx, db);
       const proxiesBackfilled = await backfillProxies(ctx, db);
       const { mirrored, pending: pendingMirrors } = await mirrorPendingMedia(
@@ -397,7 +395,6 @@ export const GenerationActions = {
         pendingMirrors,
         framesRepaired,
         mediaRepaired,
-        chatRecovered,
       };
     },
   }),

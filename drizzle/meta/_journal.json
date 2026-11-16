@@ -92,6 +92,13 @@
       "when": 1794740205569,
       "tag": "0013_drop_plugins_table_and_retire_doc_node_types",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "6",
+      "when": 1794834560561,
+      "tag": "0014_drop_project_chat_binding_columns",
+      "breakpoints": true
     }
   ]
 }
